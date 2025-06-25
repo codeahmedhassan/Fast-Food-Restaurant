@@ -116,13 +116,17 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
 
-body{
-      font-family: "Caprasimo", serif;
+body {
+  font-family: "Montserrat", sans-serif;
+}
 
+.caprasimo {
+  font-family: "Caprasimo", serif;
 }

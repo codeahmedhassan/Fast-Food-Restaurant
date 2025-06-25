@@ -2,10 +2,20 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react'
 import { ModeToggle } from './ModeToggle';
-
+import Image from 'next/image';
+import {
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+} from "@/components/ui/sheet";
+import { Button } from './ui/button';
+import { useRouter } from 'next/navigation';
 
 const Navbar = () => {
-
+    const router = useRouter()
     const links = [
         { name: 'Home', href: '/' },
         { name: 'Menu', href: '/menu' },
@@ -22,23 +32,31 @@ const Navbar = () => {
                     <h1 className={`text-2xl font-bold dark:text-amber-400 text-red-700`}>Burger Bliss</h1>
                 </div>
 
-                <nav className="hidden md:flex space-x-8">
-                    {links.map((item, index) => (
-                        <Link
-                            key={index}
-                            href={item.href}
-                            className={`font-medium transition-colors dark:text-gray-300 dark:hover:text-amber-400 text-gray-700 hover:text-red-600`}
-                        >
-                            {item.name}
-                        </Link>
-                    ))}
-                </nav>
+                <div className="flex items-center justify-center space-x-4">
+                    <div className='hidden md:flex relative cartImage rounded-full bg-white p-2 cursor-pointer' onClick={() => {router.push('/cart') }}>
+                        <div className='absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center'>
+                            2
+                        </div>
+                        <Image src="/cart.svg" alt="cart" width={20} height={20} />
+                    </div>
 
-                <div className="flex items-center space-x-4">
                     <ModeToggle />
-                    
 
-                    <button className={`px-4 py-2 rounded-full font-medium transition-colors dark:bg-amber-600 dark:text-white dark:hover:bg-amber-700 bg-red-600 text-white hover:bg-red-700`}>
+                    <div className="md:hidden">
+                        <Sheet>
+                            <SheetTrigger><Image src="/menu.svg" className='dark:invert mt-2' width={30} height={30} alt="Menu Icon" /></SheetTrigger>
+                            <SheetContent>
+                                <SheetHeader>
+                                    <SheetDescription>
+                                        <Button className={'mt-20 flex items-center justify-center flex-col w-full dark:bg-amber-600 dark:text-white dark:hover:bg-amber-700 bg-red-600 text-white hover:bg-red-700'} onClick={() => { router.push('/cart') }}>Cart</Button>
+                                    </SheetDescription>
+                                </SheetHeader>
+                            </SheetContent>
+                        </Sheet>
+                    </div>
+
+
+                    <button className={`hidden md:flex px-4 py-2 rounded-full font-medium transition-colors dark:bg-amber-600 dark:text-white dark:hover:bg-amber-700 bg-red-600 text-white hover:bg-red-700`}>
                         Login
                     </button>
                 </div>

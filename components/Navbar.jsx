@@ -12,7 +12,7 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from './ui/button';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const Navbar = () => {
     const router = useRouter()
@@ -22,46 +22,51 @@ const Navbar = () => {
         { name: 'Our location', href: '/location' },
         { name: 'Contact', href: '/contact' },
     ]
+    const pathname = usePathname();
+    const isAdmin = pathname.startsWith('/admin');
     return (
-        <header className={`fixed top-0 w-full z-50 py-4 px-4 md:px-8 backdrop-blur-md dark:bg-gray-900/80 dark:border-b dark:border-gray-800 bg-amber-50/80 border-b border-amber-200`}>
-            <div className="max-w-7xl mx-auto flex justify-between items-center">
-                <div className="flex items-center">
-                    <div className={`w-12 h-12 rounded-full mr-3 flex items-center justify-center dark:bg-amber-700 dark:text-amber-300 bg-red-600 text-white`}>
-                        <span className="font-bold text-xl">B</span>
-                    </div>
-                    <h1 className={`text-2xl font-bold dark:text-amber-400 text-red-700`}>Burger Bliss</h1>
-                </div>
-
-                <div className="flex items-center justify-center space-x-4">
-                    <div className='hidden md:flex relative cartImage rounded-full bg-white p-2 cursor-pointer' onClick={() => {router.push('/cart') }}>
-                        <div className='absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center'>
-                            2
+        <>
+            {!isAdmin && < header className={`fixed top-0 w-full z-50 py-4 px-4 md:px-8 backdrop-blur-md dark:bg-gray-900/80 dark:border-b dark:border-gray-800 bg-amber-50/80 border-b border-amber-200`}>
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
+                    <div className="flex items-center">
+                        <div className={`w-12 h-12 rounded-full mr-3 flex items-center justify-center dark:bg-amber-700 dark:text-amber-300 bg-red-600 text-white`}>
+                            <span className="font-bold text-xl">B</span>
                         </div>
-                        <Image src="/cart.svg" alt="cart" width={20} height={20} />
+                        <h1 className={`text-2xl font-bold dark:text-amber-400 text-red-700`}>Burger Bliss</h1>
                     </div>
 
-                    <ModeToggle />
+                    <div className="flex items-center justify-center space-x-4">
+                        <div className='hidden md:flex relative cartImage rounded-full bg-white p-2 cursor-pointer' onClick={() => { router.push('/cart') }}>
+                            <div className='absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-600 text-white text-[10px] flex items-center justify-center'>
+                                2
+                            </div>
+                            <Image src="/cart.svg" alt="cart" width={20} height={20} />
+                        </div>
 
-                    <div className="md:hidden">
-                        <Sheet>
-                            <SheetTrigger><Image src="/menu.svg" className='dark:invert mt-2' width={30} height={30} alt="Menu Icon" /></SheetTrigger>
-                            <SheetContent>
-                                <SheetHeader>
-                                    <SheetDescription>
-                                        <Button className={'mt-20 flex items-center justify-center flex-col w-full dark:bg-amber-600 dark:text-white dark:hover:bg-amber-700 bg-red-600 text-white hover:bg-red-700'} onClick={() => { router.push('/cart') }}>Cart</Button>
-                                    </SheetDescription>
-                                </SheetHeader>
-                            </SheetContent>
-                        </Sheet>
+                        <ModeToggle />
+
+                        <div className="md:hidden">
+                            <Sheet>
+                                <SheetTrigger><Image src="/menu.svg" className='dark:invert mt-2' width={30} height={30} alt="Menu Icon" /></SheetTrigger>
+                                <SheetContent>
+                                    <SheetHeader>
+                                        <SheetDescription>
+                                            <Button className={'mt-20 flex items-center justify-center flex-col w-full dark:bg-amber-600 dark:text-white dark:hover:bg-amber-700 bg-red-600 text-white hover:bg-red-700'} onClick={() => { router.push('/cart') }}>Cart</Button>
+                                        </SheetDescription>
+                                    </SheetHeader>
+                                </SheetContent>
+                            </Sheet>
+                        </div>
+
+
+                        <button className={`hidden md:flex px-4 py-2 rounded-full font-medium transition-colors dark:bg-amber-600 dark:text-white dark:hover:bg-amber-700 bg-red-600 text-white hover:bg-red-700`}>
+                            Login
+                        </button>
                     </div>
-
-
-                    <button className={`hidden md:flex px-4 py-2 rounded-full font-medium transition-colors dark:bg-amber-600 dark:text-white dark:hover:bg-amber-700 bg-red-600 text-white hover:bg-red-700`}>
-                        Login
-                    </button>
                 </div>
-            </div>
-        </header>
+            </header >
+            }
+        </>
     )
 }
 

@@ -18,9 +18,7 @@ const Navbar = () => {
     const router = useRouter()
     const links = [
         { name: 'Home', href: '/' },
-        { name: 'Menu', href: '/menu' },
         { name: 'Our location', href: '/location' },
-        { name: 'Contact', href: '/contact' },
     ]
     const [sheetOpen, setSheetOpen] = useState(false);
     const pathname = usePathname();

@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const UsersPage = () => {
   const [users, setUsers] = useState([
@@ -105,6 +105,43 @@ const UsersPage = () => {
     }
   };
 
+  const [todayAttendance, setTodayAttendance] = useState({});
+  const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+
+  // Initialize attendance
+  useEffect(() => {
+    const initialAttendance = {};
+    users.forEach(user => {
+      initialAttendance[user.id] = todayAttendance[user.id] || 'present';
+    });
+    setTodayAttendance(initialAttendance);
+  }, [users]);
+
+  // Handle attendance change
+  const handleAttendanceChange = (userId, status) => {
+    setTodayAttendance(prev => ({
+      ...prev,
+      [userId]: status
+    }));
+  };
+
+  // Mark all attendance
+  const handleMarkAll = (status) => {
+    const allAttendance = {};
+    users.forEach(user => {
+      allAttendance[user.id] = status;
+    });
+    setTodayAttendance(allAttendance);
+  };
+
+  const attendanceStats = {
+    present: Object.values(todayAttendance).filter(status => status === 'present').length,
+    absent: Object.values(todayAttendance).filter(status => status === 'absent').length,
+    late: Object.values(todayAttendance).filter(status => status === 'late').length,
+  };
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-4 sm:py-6 lg:py-8 px-2 sm:px-4 lg:px-6 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
@@ -142,16 +179,49 @@ const UsersPage = () => {
               </svg>
               Add
             </button>
+            <button
+              onClick={() => setShowAttendanceModal(true)}
+              className="px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-lg sm:rounded-xl shadow-sm transition-all duration-300 flex items-center justify-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Attendance
+            </button>
           </div>
         </div>
 
+
         {/* Stats Cards - Responsive Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-4 sm:mb-5 md:mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 md:gap-4 mb-4 sm:mb-5 md:mb-6">
           {[
             { title: 'Total Users', value: users.length, icon: '👥', color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200' },
             { title: 'Active Users', value: users.filter(u => u.status === 'active').length, icon: '✅', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' },
             { title: 'On Leave', value: 2, icon: '⏱️', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' },
             { title: 'Inactive', value: users.filter(u => u.status === 'inactive').length, icon: '⛔', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
+          ].map((stat, index) => (
+            <div
+              key={index}
+              className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl shadow-xs sm:shadow-sm p-3 sm:p-4 transition-all duration-300 hover:shadow-sm sm:hover:shadow-md"
+            >
+              <div className="flex items-center">
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full ${stat.color} flex items-center justify-center mr-3`}>
+                  <span className="text-lg sm:text-xl">{stat.icon}</span>
+                </div>
+                <div>
+                  <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">{stat.title}</p>
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* New Attendance Stats Cards */}
+
+          {[
+            { title: 'Present Today', value: attendanceStats.present, icon: '✅', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' },
+            { title: 'Absent Today', value: attendanceStats.absent, icon: '❌', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
+            { title: 'Late Today', value: attendanceStats.late, icon: '⏱️', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' },
           ].map((stat, index) => (
             <div
               key={index}
@@ -180,6 +250,7 @@ const UsersPage = () => {
                   <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Contact</th>
                   <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Profession</th>
                   <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Today{"'"}s Attendance</th>
                   <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
@@ -205,11 +276,27 @@ const UsersPage = () => {
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.status === 'active'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                          : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
                         }`}>
                         {user.status === 'active' ? 'Active' : 'Inactive'}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <select
+                        value={todayAttendance[user.id] || 'present'}
+                        onChange={(e) => handleAttendanceChange(user.id, e.target.value)}
+                        className={`text-xs sm:text-sm font-medium rounded-lg px-2 py-1 focus:ring-2 focus:ring-opacity-50 focus:outline-none transition-colors ${todayAttendance[user.id] === 'present'
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 focus:ring-green-500'
+                          : todayAttendance[user.id] === 'absent'
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 focus:ring-red-500'
+                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 focus:ring-yellow-500'
+                          }`}
+                      >
+                        <option value="present">Present</option>
+                        <option value="late">Late</option>
+                        <option value="absent">Absent</option>
+                      </select>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
@@ -267,12 +354,30 @@ const UsersPage = () => {
                   </div>
                   <div className="flex items-center">
                     <span className={`px-2 py-1 text-[10px] sm:text-xs font-semibold rounded-full ${user.status === 'active'
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                        : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                      : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
                       }`}>
                       {user.status === 'active' ? 'Active' : 'Inactive'}
                     </span>
                   </div>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-xs text-gray-600 dark:text-gray-400">Attendance:</span>
+                  <select
+                    value={todayAttendance[user.id] || 'present'}
+                    onChange={(e) => handleAttendanceChange(user.id, e.target.value)}
+                    className={`text-xs font-medium rounded-lg px-2 py-1 focus:ring-2 focus:ring-opacity-50 focus:outline-none transition-colors ${todayAttendance[user.id] === 'present'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 focus:ring-green-500'
+                      : todayAttendance[user.id] === 'absent'
+                        ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 focus:ring-red-500'
+                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 focus:ring-yellow-500'
+                      }`}
+                  >
+                    <option value="present">Present</option>
+                    <option value="late">Late</option>
+                    <option value="absent">Absent</option>
+                  </select>
                 </div>
 
                 <div className="mt-4 flex justify-between">
@@ -547,6 +652,91 @@ const UsersPage = () => {
             </div>
           </div>
         )}
+
+        {/* New Attendance Modal */}
+        {showAttendanceModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <div className="p-4 sm:p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Mark Attendance</h3>
+                  <button
+                    onClick={() => setShowAttendanceModal(false)}
+                    className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                  <input
+                    type="date"
+                    className="w-full px-3 py-2 text-sm sm:text-base bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-500 dark:focus:border-indigo-500"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex gap-2 mb-4">
+                  <button
+                    onClick={() => handleMarkAll('present')}
+                    className="flex-1 px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 rounded-lg hover:bg-green-200 dark:hover:bg-green-800/50"
+                  >
+                    Mark All Present
+                  </button>
+                  <button
+                    onClick={() => handleMarkAll('absent')}
+                    className="flex-1 px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-800/50"
+                  >
+                    Mark All Absent
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {users.map(user => (
+                    <div key={user.id} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <div className="flex items-center">
+                        <div className="bg-gray-200 dark:bg-gray-600 border-2 border-dashed rounded-full w-8 h-8 mr-3" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">{user.name}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{user.profession}</p>
+                        </div>
+                      </div>
+                      <select
+                        value={todayAttendance[user.id] || 'present'}
+                        onChange={(e) => handleAttendanceChange(user.id, e.target.value)}
+                        className={`text-xs font-medium rounded-lg px-2 py-1 ${todayAttendance[user.id] === 'present'
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                          : todayAttendance[user.id] === 'absent'
+                            ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                          }`}
+                      >
+                        <option value="present">Present</option>
+                        <option value="late">Late</option>
+                        <option value="absent">Absent</option>
+                      </select>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 flex justify-end">
+                  <button
+                    onClick={() => setShowAttendanceModal(false)}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  >
+                    Save Attendance
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+
       </div>
     </div>
   );
